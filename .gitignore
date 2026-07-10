@@ -1,0 +1,5 @@
+__pycache__/
+*.egg-info/
+.pytest_cache/
+collection.json
+collection-moxfield.csv
