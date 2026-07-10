@@ -86,3 +86,16 @@ def test_find_card_db_picks_newest(tmp_path):
     import os, time
     os.utime(old, (time.time() - 100, time.time() - 100))
     assert find_card_db(tmp_path) == new
+
+
+def test_formatted1_only_name_resolved_and_stripped(card_db):
+    # Most real cards have no Formatted=0 title row; the old query
+    # (AND l.Formatted = 0) returned None for them, and without tag
+    # stripping the name would keep the <nobr> markup.
+    card = CardResolver(card_db).resolve(82000)
+    assert card is not None
+    assert card.name == "Half-Elf Monk"
+
+
+def test_formatted0_preferred_when_both_exist(card_db):
+    assert CardResolver(card_db).resolve(82001).name == "Plain Name"

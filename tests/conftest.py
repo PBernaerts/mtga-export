@@ -40,11 +40,17 @@ def card_db(tmp_path):
         (90001, 1003, "YMID", "A-25", 4, "2", "2", "o1oU", 1, 1, 0, 1),  # rebalanced Alchemy card
         (80100, 1004, "NEO", "45", 5, "2,3", "2,3", "oXoUoB", 0, 0, 0, 1),  # multicolor mythic
         (81000, 1005, "NEO", "240", 2, "", "1", "o2", 0, 0, 0, 1),          # colorless artifact
+        (82000, 1006, "FDN", "100", 2, "1", "2", "o1", 0, 0, 0, 1),         # Formatted=1-only title
+        (82001, 1007, "FDN", "101", 2, "1", "2", "o1", 0, 0, 0, 1),         # both Formatted variants
     ]
     con.executemany("INSERT INTO Cards VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", rows)
     names = [(1001, 0, "Hallowed Priest"), (1002, 0, "Llanowar Elves"),
              (1003, 0, "A-Test Card"), (1004, 0, "Test Mythic"),
-             (1005, 0, "Test Artifact")]
+             (1005, 0, "Test Artifact"),
+             # 1006 has NO Formatted=0 row (like most real cards) and carries markup
+             (1006, 1, "<nobr>Half-Elf</nobr> Monk"),
+             # 1007 has both variants; Formatted=0 must win
+             (1007, 0, "Plain Name"), (1007, 1, "<i>Fancy</i> Name")]
     con.executemany("INSERT INTO Localizations_enUS VALUES (?,?,?)", names)
     con.commit()
     con.close()
