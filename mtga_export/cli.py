@@ -18,8 +18,9 @@ def main(argv=None) -> int:
     p.add_argument("--daemon-url", default=DEFAULT_URL)
     p.add_argument("--no-spawn", action="store_true",
                    help="only use an already-running daemon")
-    p.add_argument("--json-only", action="store_true")
-    p.add_argument("--csv-only", action="store_true")
+    g = p.add_mutually_exclusive_group()
+    g.add_argument("--json-only", action="store_true")
+    g.add_argument("--csv-only", action="store_true")
     p.add_argument("--version", action="version", version=__version__)
     args = p.parse_args(argv)
 
@@ -51,7 +52,7 @@ def main(argv=None) -> int:
             if card is None:
                 unresolved.append(grp_id)
             elif card.rebalanced:
-                rebalanced_dropped += 1
+                rebalanced_dropped += count
             else:
                 cards.append((card, count))
     cards.sort(key=lambda pair: pair[0].name)

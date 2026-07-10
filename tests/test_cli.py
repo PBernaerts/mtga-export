@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from mtga_export import cli
 
 
@@ -22,10 +24,20 @@ def test_cli_end_to_end(card_db, stub_daemon, tmp_path, capsys):
 
 def test_cli_rebalanced_dropped(card_db, stub_daemon, tmp_path):
     url, responses = stub_daemon
-    responses["/cards"]["cards"].append({"grpId": 90001, "owned": 1})
+    responses["/cards"]["cards"].append({"grpId": 90001, "owned": 2})
     cli.main(["--card-db", str(card_db), "--daemon-url", url, "-o", str(tmp_path)])
     data = json.loads((tmp_path / "collection.json").read_text())
     assert all(c["rebalanced"] is False for c in data["cards"])
+    assert data["meta"]["rebalanced_dropped"] == 2  # copies, not distinct grpIds
+
+
+def test_cli_json_only_csv_only_mutually_exclusive(card_db, tmp_path):
+    with pytest.raises(SystemExit) as e:
+        cli.main([
+            "--card-db", str(card_db), "-o", str(tmp_path),
+            "--json-only", "--csv-only",
+        ])
+    assert e.value.code == 2
 
 
 def test_cli_bad_card_db_path(tmp_path, capsys):
