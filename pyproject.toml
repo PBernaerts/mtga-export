@@ -16,3 +16,4 @@ include = ["mtga_export*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["integration: needs MTG Arena running"]
