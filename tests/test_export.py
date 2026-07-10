@@ -43,6 +43,27 @@ def test_moxfield_csv_excludes_digital_only(tmp_path):
     assert len(list(csv.reader(out.open()))) == 1  # header only
 
 
+def test_roundtrip_special_names(tmp_path):
+    cards = [
+        (_card(name="Fire // Ice", set_code="APC", collector_number="128"), 2),
+        (_card(name="Lim-Dûl's Vault", set_code="ALL", collector_number="105"), 1),
+    ]
+
+    csv_out = tmp_path / "c.csv"
+    write_moxfield_csv(cards, csv_out)
+    rows = list(csv.reader(csv_out.open(encoding="utf-8")))
+    assert rows[1][2] == "Fire // Ice"
+    assert rows[2][2] == "Lim-Dûl's Vault"
+
+    json_out = tmp_path / "c.json"
+    write_json(cards, {}, json_out)
+    data = json.loads(json_out.read_text(encoding="utf-8"))
+    assert data["cards"][0]["name"] == "Fire // Ice"
+    assert data["cards"][1]["name"] == "Lim-Dûl's Vault"
+    # ensure_ascii=False: name must appear unescaped in the raw file
+    assert "Lim-Dûl's Vault" in json_out.read_text(encoding="utf-8")
+
+
 def test_json_export(tmp_path):
     out = tmp_path / "c.json"
     meta = {"exported_at": "2026-07-10T12:00:00", "daemon_version": "1.0.11.0"}

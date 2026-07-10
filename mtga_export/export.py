@@ -18,7 +18,7 @@ def write_moxfield_csv(cards: list[tuple[Card, int]], path: Path) -> int:
     """Write Moxfield import CSV. Digital-only cards are excluded (Moxfield
     has no printings for Arena-only sets). Returns rows written."""
     written = 0
-    with open(path, "w", newline="") as f:
+    with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(MOXFIELD_HEADER)
         for card, count in cards:
@@ -41,4 +41,7 @@ def write_json(cards: list[tuple[Card, int]], meta: dict, path: Path) -> None:
         },
         "cards": [{**asdict(card), "count": count} for card, count in cards],
     }
-    path.write_text(json.dumps(payload, indent=2) + "\n")
+    path.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
