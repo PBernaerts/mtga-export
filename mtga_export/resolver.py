@@ -18,6 +18,8 @@ COLOR_MAP = {1: "W", 2: "U", 3: "B", 4: "R", 5: "G"}
 RARITY_MAP = {1: "basic", 2: "common", 3: "uncommon", 4: "rare", 5: "mythic"}
 # Hybrid/Phyrexian parenthesized costs (e.g. "o(G/W)") are knowingly unhandled.
 _MANA_TOKEN = re.compile(r"o(\d+|[A-Z])")
+# Formatted=1 titles may embed markup like <nobr>...</nobr>; strip any tags.
+_TAG = re.compile(r"<[^>]+>")
 
 
 @dataclass
@@ -77,8 +79,10 @@ class CardResolver:
                    c.Rarity, c.Colors, c.OldSchoolManaText,
                    c.IsDigitalOnly, c.IsRebalanced
             FROM Cards c
-            JOIN Localizations_enUS l ON l.LocId = c.TitleId AND l.Formatted = 0
+            JOIN Localizations_enUS l ON l.LocId = c.TitleId
             WHERE c.GrpId = ?
+            ORDER BY l.Formatted
+            LIMIT 1
             """,
             (grp_id,),
         ).fetchone()
@@ -91,7 +95,7 @@ class CardResolver:
         ]
         return Card(
             grp_id=gid,
-            name=name,
+            name=_TAG.sub("", name),
             set_code=set_code,
             collector_number=cn,
             rarity=RARITY_MAP.get(rarity, str(rarity)),
