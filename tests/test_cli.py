@@ -28,6 +28,19 @@ def test_cli_rebalanced_dropped(card_db, stub_daemon, tmp_path):
     assert all(c["rebalanced"] is False for c in data["cards"])
 
 
+def test_cli_bad_card_db_path(tmp_path, capsys):
+    rc = cli.main([
+        "--card-db", "/nonexistent/db.mtga",
+        "--daemon-url", "http://127.0.0.1:1",
+        "-o", str(tmp_path),
+    ])
+    assert rc == 1
+    err = capsys.readouterr().err
+    assert "error:" in err
+    # DB path must be validated before any daemon interaction
+    assert "card database not found" in err
+
+
 def test_cli_daemon_unreachable(card_db, tmp_path, capsys):
     rc = cli.main([
         "--card-db", str(card_db),

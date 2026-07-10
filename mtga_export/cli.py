@@ -25,6 +25,8 @@ def main(argv=None) -> int:
 
     try:
         db_path = args.card_db or find_card_db()
+        if not db_path.is_file():
+            raise FileNotFoundError(f"card database not found: {db_path}")
     except FileNotFoundError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
