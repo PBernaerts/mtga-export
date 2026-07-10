@@ -16,6 +16,7 @@ SET_REMAP = {"DAR": "DOM", "CONF": "CON"}
 
 COLOR_MAP = {1: "W", 2: "U", 3: "B", 4: "R", 5: "G"}
 RARITY_MAP = {1: "basic", 2: "common", 3: "uncommon", 4: "rare", 5: "mythic"}
+# Hybrid/Phyrexian parenthesized costs (e.g. "o(G/W)") are knowingly unhandled.
 _MANA_TOKEN = re.compile(r"o(\d+|[A-Z])")
 
 
@@ -53,9 +54,21 @@ def _mana_text(old_school: str) -> str:
 class CardResolver:
     def __init__(self, db_path: Path):
         # Copy first: never open Steam's live file, even read-only.
-        self._tmp = tempfile.NamedTemporaryFile(suffix=".sqlite", delete=False)
-        shutil.copyfile(db_path, self._tmp.name)
-        self._con = sqlite3.connect(f"file:{self._tmp.name}?mode=ro", uri=True)
+        # delete=True: on Linux the named file persists until self._tmp.close(),
+        # and sqlite can open it by name; closing the handle deletes the file.
+        self._tmp = tempfile.NamedTemporaryFile(suffix=".sqlite")
+        try:
+            shutil.copyfile(db_path, self._tmp.name)
+            self._con = sqlite3.connect(f"file:{self._tmp.name}?mode=ro", uri=True)
+        except BaseException:
+            self._tmp.close()
+            raise
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        self.close()
 
     def resolve(self, grp_id: int) -> Card | None:
         row = self._con.execute(
@@ -90,4 +103,4 @@ class CardResolver:
 
     def close(self):
         self._con.close()
-        Path(self._tmp.name).unlink(missing_ok=True)
+        self._tmp.close()  # deletes the temp copy

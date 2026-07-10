@@ -35,10 +35,12 @@ def card_db(tmp_path):
         (67330, 1002, "DAR", "168", 2, "5", "2", "oG", 0, 0, 0, 1),      # Llanowar Elves, DAR→DOM remap
         (90001, 1003, "YMID", "A-25", 4, "2", "2", "o1oU", 1, 1, 0, 1),  # rebalanced Alchemy card
         (80100, 1004, "NEO", "45", 5, "2,3", "2,3", "oXoUoB", 0, 0, 0, 1),  # multicolor mythic
+        (81000, 1005, "NEO", "240", 2, "", "1", "o2", 0, 0, 0, 1),          # colorless artifact
     ]
     con.executemany("INSERT INTO Cards VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", rows)
     names = [(1001, 0, "Hallowed Priest"), (1002, 0, "Llanowar Elves"),
-             (1003, 0, "A-Test Card"), (1004, 0, "Test Mythic")]
+             (1003, 0, "A-Test Card"), (1004, 0, "Test Mythic"),
+             (1005, 0, "Test Artifact")]
     con.executemany("INSERT INTO Localizations_enUS VALUES (?,?,?)", names)
     con.commit()
     con.close()

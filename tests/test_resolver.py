@@ -35,6 +35,40 @@ def test_multicolor_and_x_cost(card_db):
     assert c.rarity == "mythic"
 
 
+def test_colorless_artifact(card_db):
+    c = CardResolver(card_db).resolve(81000)
+    assert c.name == "Test Artifact"
+    assert c.colors == []
+    assert c.mana_cost == "{2}"
+
+
+def test_close_removes_temp_copy(card_db):
+    from pathlib import Path
+    r = CardResolver(card_db)
+    tmp_name = r._tmp.name
+    assert Path(tmp_name).exists()
+    r.close()
+    assert not Path(tmp_name).exists()
+
+
+def test_context_manager(card_db):
+    from pathlib import Path
+    with CardResolver(card_db) as r:
+        tmp_name = r._tmp.name
+        assert r.resolve(67330).name == "Llanowar Elves"
+    assert not Path(tmp_name).exists()
+
+
+def test_init_failure_leaves_no_temp_file(tmp_path, monkeypatch):
+    import tempfile
+    temp_dir = tmp_path / "tempdir"
+    temp_dir.mkdir()
+    monkeypatch.setattr(tempfile, "tempdir", str(temp_dir))
+    with pytest.raises(OSError):
+        CardResolver(tmp_path / "does_not_exist.mtga")
+    assert list(temp_dir.iterdir()) == []
+
+
 def test_unknown_grpid_returns_none(card_db):
     assert CardResolver(card_db).resolve(999999) is None
 
