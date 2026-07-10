@@ -62,7 +62,8 @@ def stub_daemon():
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):
-            body = json.dumps(responses.get(self.path, {})).encode()
+            payload = responses.get(self.path, {})
+            body = payload if isinstance(payload, bytes) else json.dumps(payload).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()

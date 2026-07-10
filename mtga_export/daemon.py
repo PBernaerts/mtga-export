@@ -30,9 +30,15 @@ class DaemonClient:
             with urllib.request.urlopen(
                 f"{self.base_url}{endpoint}", timeout=self.timeout
             ) as resp:
-                return json.load(resp)
+                body = resp.read()
         except (urllib.error.URLError, OSError) as e:
             raise DaemonError(f"daemon unreachable at {self.base_url}: {e}") from e
+        try:
+            return json.loads(body)
+        except ValueError as e:
+            raise DaemonError(
+                f"daemon returned invalid JSON from {endpoint}: {e}"
+            ) from e
 
     def reachable(self) -> bool:
         try:

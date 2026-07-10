@@ -23,6 +23,15 @@ def test_arena_not_running_raises(stub_daemon):
         DaemonClient(base_url=url).get_cards()
 
 
+def test_invalid_json_raises_daemon_error(stub_daemon):
+    url, responses = stub_daemon
+    responses["/status"] = b"<html>not json</html>"
+    c = DaemonClient(base_url=url)
+    with pytest.raises(DaemonError, match="invalid JSON"):
+        c.status()
+    assert c.reachable() is False
+
+
 def test_daemon_unreachable():
     c = DaemonClient(base_url="http://127.0.0.1:1", timeout=0.2)
     assert c.reachable() is False
