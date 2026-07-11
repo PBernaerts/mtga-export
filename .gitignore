@@ -4,3 +4,4 @@ __pycache__/
 .pytest_cache/
 collection.json
 collection-moxfield.csv
+vendor/mtga-tracker-daemon/bin/
