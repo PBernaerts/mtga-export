@@ -2,13 +2,25 @@
 name = "mtga-export"
 version = "0.1.0"
 description = "Export your MTG Arena collection to Moxfield CSV and JSON on Linux"
+readme = "README.md"
+license = "MIT"
 requires-python = ">=3.11"
+classifiers = [
+    "Environment :: Console",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Games/Entertainment",
+]
+
+[project.urls]
+Repository = "https://github.com/PBernaerts/mtga-export"
+Issues = "https://github.com/PBernaerts/mtga-export/issues"
 
 [project.scripts]
 mtga-export = "mtga_export.cli:main"
 
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
@@ -17,3 +29,5 @@ include = ["mtga_export*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["integration: needs MTG Arena running"]
+# Plain `pytest` must never spawn the real daemon; opt in with -m integration.
+addopts = "-m 'not integration'"

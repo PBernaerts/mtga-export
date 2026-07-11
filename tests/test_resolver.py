@@ -99,3 +99,49 @@ def test_formatted1_only_name_resolved_and_stripped(card_db):
 
 def test_formatted0_preferred_when_both_exist(card_db):
     assert CardResolver(card_db).resolve(82001).name == "Plain Name"
+
+
+def test_null_columns_resolve_without_crash(card_db):
+    c = CardResolver(card_db).resolve(83000)
+    assert c is not None
+    assert c.name == "Null Heavy Card"
+    assert c.set_code == ""
+    assert c.collector_number == ""
+    assert c.colors == []
+    assert c.mana_cost == ""
+
+
+def test_find_card_db_searches_steam_roots(tmp_path, monkeypatch):
+    import mtga_export.resolver as resolver
+    root = tmp_path / "steam-root"
+    raw = root / resolver.RAW_SUBPATH
+    raw.mkdir(parents=True)
+    db = raw / "Raw_CardDatabase_abc.mtga"
+    db.write_bytes(b"x")
+    monkeypatch.setattr(resolver, "STEAM_ROOTS", [tmp_path / "missing", root])
+    assert find_card_db() == db
+
+
+def test_find_card_db_follows_libraryfolders_vdf(tmp_path, monkeypatch):
+    import mtga_export.resolver as resolver
+    root = tmp_path / "steam-root"
+    (root / "steamapps").mkdir(parents=True)
+    lib2 = tmp_path / "second-drive" / "SteamLibrary"
+    raw = lib2 / resolver.RAW_SUBPATH
+    raw.mkdir(parents=True)
+    db = raw / "Raw_CardDatabase_abc.mtga"
+    db.write_bytes(b"x")
+    (root / "steamapps" / "libraryfolders.vdf").write_text(
+        f'"libraryfolders"\n{{\n\t"1"\n\t{{\n\t\t"path"\t\t"{lib2}"\n\t}}\n}}\n'
+    )
+    monkeypatch.setattr(resolver, "STEAM_ROOTS", [root])
+    assert find_card_db() == db
+
+
+def test_find_card_db_error_lists_searched_paths(tmp_path, monkeypatch):
+    import mtga_export.resolver as resolver
+    monkeypatch.setattr(resolver, "STEAM_ROOTS", [tmp_path / "a", tmp_path / "b"])
+    with pytest.raises(FileNotFoundError) as e:
+        find_card_db()
+    assert "--card-db" in str(e.value)
+    assert str(tmp_path / "a") in str(e.value)

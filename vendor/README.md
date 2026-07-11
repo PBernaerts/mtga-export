@@ -9,4 +9,4 @@
   regular user on 2026-07-10.
 
 To update: download the new Linux release, replace `bin/`, update this file,
-and re-run the integration test (`pytest tests/test_daemon.py` with Arena running).
+and re-run the integration test (`pytest -m integration` with Arena running).
