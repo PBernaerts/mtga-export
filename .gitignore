@@ -5,3 +5,4 @@ __pycache__/
 collection.json
 collection-moxfield.csv
 vendor/mtga-tracker-daemon/bin/
+docs/superpowers/
