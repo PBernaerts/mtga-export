@@ -72,4 +72,5 @@ the real daemon and needs Arena running.
 
 Unofficial fan project, not affiliated with or endorsed by Wizards of the
 Coast. It reads Arena's process memory read-only, like other collection
-trackers; use at your own risk. MIT licensed.
+trackers; use at your own risk. This Python project is MIT licensed; the
+downloaded mtga-tracker-daemon is separately licensed under GPL-3.0.

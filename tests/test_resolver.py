@@ -1,6 +1,6 @@
 import pytest
 
-from mtga_export.resolver import CardResolver, find_card_db
+from mtga_export.resolver import CardResolver, _mana_text, find_card_db
 
 
 def test_resolves_basic_fields(card_db):
@@ -33,6 +33,10 @@ def test_multicolor_and_x_cost(card_db):
     assert c.colors == ["U", "B"]
     assert c.mana_cost == "{X}{U}{B}"
     assert c.rarity == "mythic"
+
+
+def test_hybrid_and_phyrexian_mana_costs():
+    assert _mana_text("o2o(G/W)o(W/P)o(2/U)") == "{2}{G/W}{W/P}{2/U}"
 
 
 def test_colorless_artifact(card_db):

@@ -44,6 +44,8 @@ class DaemonClient:
             raise DaemonError(
                 f"daemon returned unexpected payload from {endpoint}: {data!r}"
             )
+        if "error" in data:
+            raise DaemonError(f"daemon error from {endpoint}: {data['error']}")
         return data
 
     def reachable(self) -> bool:

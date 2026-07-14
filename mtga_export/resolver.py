@@ -22,8 +22,9 @@ SET_REMAP = {"DAR": "DOM", "CONF": "CON"}
 
 COLOR_MAP = {1: "W", 2: "U", 3: "B", 4: "R", 5: "G"}
 RARITY_MAP = {1: "basic", 2: "common", 3: "uncommon", 4: "rare", 5: "mythic"}
-# Hybrid/Phyrexian parenthesized costs (e.g. "o(G/W)") are knowingly unhandled.
-_MANA_TOKEN = re.compile(r"o(\d+|[A-Z])")
+# Arena wraps multi-part symbols such as hybrid and Phyrexian mana in
+# parentheses (for example, "o(G/W)" and "o(W/P)").
+_MANA_TOKEN = re.compile(r"o(?:\(([^)]+)\)|(\d+|[A-Z]))")
 # Formatted=1 titles may embed markup like <nobr>...</nobr>; strip any tags.
 _TAG = re.compile(r"<[^>]+>")
 
@@ -82,7 +83,10 @@ def find_card_db(raw_dir: Path | None = None) -> Path:
 
 
 def _mana_text(old_school: str) -> str:
-    return "".join(f"{{{tok}}}" for tok in _MANA_TOKEN.findall(old_school))
+    return "".join(
+        f"{{{parenthesized or simple}}}"
+        for parenthesized, simple in _MANA_TOKEN.findall(old_school)
+    )
 
 
 class CardResolver:

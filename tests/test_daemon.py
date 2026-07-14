@@ -58,6 +58,15 @@ def test_malformed_cards_payload_raises_daemon_error(stub_daemon):
         DaemonClient(base_url=url).get_cards()
 
 
+def test_daemon_error_payload_preserves_message(stub_daemon):
+    url, responses = stub_daemon
+    responses["/cards"] = {"error": "memory read failed"}
+    with pytest.raises(
+        DaemonError, match=r"^daemon error from /cards: memory read failed$"
+    ):
+        DaemonClient(base_url=url).get_cards()
+
+
 def test_non_dict_payload_raises_daemon_error(stub_daemon):
     url, responses = stub_daemon
     responses["/status"] = [1, 2, 3]
